@@ -1,0 +1,72 @@
+n2kdran web — répétiteur d'instruments NMEA 2000 dans un navigateur
+=====================================================================
+
+Le même écran que l'appli Android n2kdran (rose, laylines, cibles de polaire, sail
+chart, AIS…), dans un navigateur. Le manuel complet est dans n2kdran-manuel.pdf ;
+le chapitre 9 concerne cette version web. Pour une installation avec Claude Code
+(HALPI, et n2k-mux en option) : lui faire lire HALPI-CLAUDE.md.
+
+Un navigateur ne sait pas lire seul le bus NMEA 2000 : un petit programme, le relais
+(relay.py), lit le bus et le transmet à la page. Il ne demande que Python 3 (aucune
+bibliothèque à installer) et n'émet jamais rien sur le bus.
+
+
+1. Essai rapide
+---------------
+Dans ce dossier :
+
+    python3 relay.py --n2k can:can0
+
+puis ouvrir http://localhost:8090/ dans un navigateur (Chrome, Brave, Firefox…).
+Depuis un autre appareil du réseau : http://<adresse de la machine>:8090/
+
+Sources possibles (--n2k) :
+  can:can0          bus CAN de la machine (HALPI : interface NMEA 2000 intégrée)
+  hôte:port         flux « YDRAW » en TCP (Yacht Devices RAW, n2k-mux…)
+  a,b,…             plusieurs sources, essayées dans l'ordre
+
+La lecture de can0 ne gêne pas les autres programmes qui l'utilisent (Signal K…).
+Si le port 8090 est déjà pris : --http <autre port> (8080 est celui de l'interface
+web de n2k-mux).
+
+L'indicateur « N2K » en bas à gauche passe au vert quand les données arrivent.
+Double clic n'importe où (ou touche D) : toutes les données reçues en texte.
+
+
+2. Démarrage automatique (service systemd utilisateur, sans root)
+-----------------------------------------------------------------
+    mkdir -p ~/.config/systemd/user ~/.config/n2kdran-web
+    cp n2kdran-web.service ~/.config/systemd/user/
+    printf 'SOURCE=can:can0\nDIR=%s\n' "$PWD" > ~/.config/n2kdran-web/env
+    systemctl --user daemon-reload
+    systemctl --user enable --now n2kdran-web
+    loginctl enable-linger $USER       # pour démarrer sans session ouverte
+
+État et journaux :  systemctl --user status n2kdran-web
+                    journalctl --user -u n2kdran-web
+
+
+3. À régler pour votre bateau
+-----------------------------
+Clic sur « qtVlm » ou « N2K » (en bas à gauche) : réglages.
+- Polaire : par défaut celle d'un catamaran CM50. Charger la polaire de votre
+  bateau (fichier qtVlm .pol ou .csv) : sinon cibles, couleurs et laylines sont fausses.
+- Sail chart : CM50 par défaut. Charger vos fichiers qtVlm .saildef + .sailselect,
+  ou masquer le sail chart du centre avec le bouton rond en haut à gauche de la rose.
+- La silhouette au centre est celle du CM50 (purement décorative).
+
+Gestes : appui long = mode nuit ; triple clic sur une case = choix de la donnée ;
+touches F (plein écran), N (nuit), D (mise au point).
+
+Fenêtre sans barre de navigateur (Chrome, Brave) : menu ⋮ → « Enregistrer et
+partager » → « Installer la page en tant qu'application », ou
+    chromium --app=http://localhost:8090/
+
+
+4. Limites
+----------
+- Les calculs (moyennes 10 min, historique des laylines, dérive) tournent dans la
+  page : ils repartent de zéro si on la ferme.
+- Son des alarmes AIS : le navigateur ne joue rien avant un premier clic dans la page.
+- Navigation vers un waypoint : envoyée par qtVlm en UDP, port 2800, vers l'adresse
+  de la machine du relais (voir le manuel, § 2.3).

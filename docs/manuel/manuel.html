@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>n2kdran — Manuel d'utilisation</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 10.5pt; line-height: 1.45; color: #111; }
+  h1 { font-size: 26pt; margin: 0 0 4mm 0; }
+  h2 { font-size: 16pt; margin: 9mm 0 3mm 0; border-bottom: 2px solid #0b5; padding-bottom: 1mm; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 6mm 0 2mm 0; page-break-after: avoid; }
+  p, li { margin: 0 0 2mm 0; }
+  ul, ol { margin: 0 0 3mm 0; padding-left: 6mm; }
+  img { width: 100%; border: 1px solid #888; }
+  figure { margin: 3mm 0 4mm 0; page-break-inside: avoid; }
+  .duo { display: flex; gap: 4mm; page-break-inside: avoid; }
+  .duo figure { flex: 1; margin: 2mm 0; }
+  figcaption { font-size: 9pt; color: #444; text-align: center; margin-top: 1mm; }
+  table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm 0; font-size: 9.5pt; page-break-inside: auto; }
+  th, td { border: 1px solid #bbb; padding: 1.2mm 2mm; vertical-align: top; text-align: left; }
+  th { background: #eee; }
+  tr { page-break-inside: avoid; }
+  .cover { text-align: center; padding-top: 10mm; page-break-after: always; }
+  .cover p { font-size: 13pt; }
+  .note { background: #fff7d6; border-left: 4px solid #e0b400; padding: 2mm 3mm; margin: 3mm 0; page-break-inside: avoid; }
+  .warn { background: #fde8e8; border-left: 4px solid #d33; padding: 2mm 3mm; margin: 3mm 0; page-break-inside: avoid; }
+  .num { display: inline-block; width: 6mm; height: 6mm; line-height: 6mm; border-radius: 3mm; background: #FFD400;
+         border: 1px solid #000; text-align: center; font-weight: bold; font-size: 8.5pt; }
+  .g { color: #1a9e2c; font-weight: bold; } .r { color: #d22; font-weight: bold; } .b { color: #1f4fd8; font-weight: bold; }
+  .small { font-size: 9pt; color: #444; }
+  .pb { page-break-before: always; }
+  code { font-family: "DejaVu Sans Mono", monospace; font-size: 9pt; background: #f2f2f2; padding: 0 1mm; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <img src="../icone/n2kdran-rose-1080.png" alt="" style="width:38mm;border:none;margin-bottom:6mm">
+  <h1>n2kdran</h1>
+  <p>Répétiteur d'instruments NMEA 2000 pour tablette Android<br>et navigateur web (§ 9)</p>
+  <p style="font-size:11pt;margin-top:12mm">Manuel d'utilisation — version 0.1</p>
+  <figure style="margin-top:8mm"><img src="img/principal.png" alt="Écran principal"></figure>
+  <p class="small">Mise en page conçue pour la SailProof SP10X (1280 × 800, Android 16).<br>
+  Fonctionne aussi sur téléphone et autre tablette (Android 13 ou plus récent).</p>
+</div>
+
+<h2>1. Présentation</h2>
+<p>n2kdran affiche sur une tablette les instruments du bord diffusés sur le Wi-Fi par une <b>source N2K</b> : un appareil qui relaie le bus NMEA 2000
+en TCP au format YDRAW (« RAW » de Yacht Devices), par exemple o3nav (logiciel n2k-mux),
+et y ajoute une aide à la décision pour la marche du bateau : cibles de polaire, laylines corrigées du courant,
+temps et distances jusqu'au waypoint.</p>
+<p>L'écran comporte une rose des vents au centre,
+cinq cases de données de chaque côté.</p>
+<ul>
+  <li><b>Données du bord</b> : flux NMEA 2000 de la source N2K (TCP, port 2700 par défaut).</li>
+  <li><b>Navigation vers le waypoint</b> : envoyée par qtVlm (UDP, port 2800).</li>
+  <li><b>AIS</b> : cibles reçues dans le flux de la source N2K ; n2kdran signale la cible la plus menaçante et les balises de détresse.</li>
+  <li><b>Calculs</b> (cibles, VMG, laylines, courant, dérive, route vers le WP) : faits par n2kdran à partir de la
+      polaire du bateau (fichier qtVlm, CM50 par défaut).</li>
+</ul>
+<div class="note"><b>Règle de base :</b> une donnée qui n'est plus reçue depuis le délai de péremption (3 s par défaut)
+s'affiche en gris « --- ». Une valeur affichée est donc toujours une valeur fraîche, jamais une valeur figée.</div>
+
+<h2>2. Mise en service</h2>
+<h3>2.1 Installation</h3>
+<p>n2kdran n'est pas distribué par le Play Store : il s'installe à partir du fichier <b>n2kdran-&lt;version&gt;.apk</b>
+(Android 13 ou plus récent).</p>
+<ol>
+  <li>Copier le fichier sur la tablette ou le téléphone (câble USB, messagerie, clé…) et l'ouvrir.</li>
+  <li>Accepter, quand Android le demande, l'installation d'applications depuis cette source.</li>
+  <li>Une nouvelle version s'installe de la même façon, par-dessus l'ancienne : les réglages, la polaire et le sail chart sont conservés.</li>
+</ol>
+<h3>2.2 Connexion à la source N2K</h3>
+<ol>
+  <li>Connecter la tablette au Wi-Fi du bord.</li>
+  <li>Lancer n2kdran : l'indicateur <b>N2K</b> (coin bas gauche) passe au <span class="g">vert</span>
+      dès que les données arrivent.</li>
+  <li>Indiquer l'adresse de la source N2K dans les réglages (§ 5).</li>
+</ol>
+<p>La connexion se rétablit seule après une coupure (source N2K redémarrée, Wi-Fi perdu) : n2kdran réessaie toutes les 2 s.</p>
+<h3>2.3 Navigation vers le waypoint (qtVlm)</h3>
+<p>Dans qtVlm (celui d'o3nav à bord) : <i>Connexions NMEA → Autres options → Envoyer WP actif à la sortie NMEA</i>, cocher :</p>
+<table>
+  <tr><th>Case qtVlm</th><th>Ce qu'elle apporte à n2kdran</th></tr>
+  <tr><td><b>RMB</b></td><td>distance et relèvement du WP (indispensable aux temps et distances jusqu'au WP)</td></tr>
+  <tr><td><b>WPL</b></td><td>nom du WP, affiché en bas à droite</td></tr>
+  <tr><td><b>XTE</b></td><td>écart de route (case XTE), émis quand qtVlm suit une route</td></tr>
+</table>
+<p>Les autres cases (BWC…) ne sont pas utiles à n2kdran. La sortie de qtVlm doit être en UDP, port 2800, avec l'interrupteur « NMEA2000 » activé.</p>
+<div class="warn">En Wi-Fi, la diffusion UDP (adresse de broadcast) perd beaucoup de paquets : le WP décroche par moments.
+Indiquer plutôt comme destination l'<b>adresse IP de la tablette</b> (à réserver dans le DHCP du bord pour qu'elle ne change pas).
+qtVlm propose deux sorties UDP, donc deux appareils au plus. qtVlm ne sait pas être serveur TCP : sa sortie TCP ne convient pas.</div>
+
+<h4>qtVlm sur la même tablette</h4>
+<p>Un paquet adressé à la tablette n'est remis qu'à un seul des programmes qui écoutent le même port : qtVlm et n2kdran
+ne peuvent donc pas écouter tous les deux le port 2800. n2kdran reçoit la navigation et la <b>relaie</b> à qtVlm, sans la modifier :</p>
+<ol>
+  <li>Dans n2kdran : <i>Réglages → Relais vers qtVlm sur cet appareil</i> = <b>2801</b>.</li>
+  <li>Dans qtVlm de la tablette : connexion entrante UDP, adresse <b>0.0.0.0</b>, port <b>2801</b>, et cocher l'option <b>« Traiter les messages RMB (WP) »</b>
+      (<i>Connexions NMEA</i>, onglet <i>WP</i> ; sans elle, qtVlm reçoit les données mais n'affiche pas le WP).</li>
+</ol>
+<p>Le relais ne fonctionne que si n2kdran est actif (premier plan ou arrière-plan) ; le compteur « relayés » de l'écran de mise au point (§ 7)
+permet de le vérifier.</p>
+
+<h3>2.4 Téléphone Samsung utilisé comme répétiteur</h3>
+<div class="warn">Le Wi-Fi du bord n'a pas d'accès Internet. Les téléphones Samsung peuvent alors refuser de s'y connecter
+(« Prêt à se connecter lorsque la qualité du réseau sera meilleure »). Désactiver dans le téléphone :
+<i>Paramètres → Connexions → Wi-Fi → ⋮ → Wi-Fi intelligent → Basculer vers les données mobiles</i>.</div>
+<p>Une fois le Wi-Fi connecté, n2kdran fait passer les connexions vers le réseau du bord par le Wi-Fi, même si le
+téléphone préfère la 4G pour le reste.</p>
+
+<h3>2.5 Fonctionnement en arrière-plan</h3>
+<p>n2kdran continue de recevoir et de calculer quand on passe à une autre application ou que l'écran
+est masqué : les moyennes de 10 minutes, l'historique des laylines, la dérive mesurée et l'historique
+de barre ne sont pas perdus. Une notification permanente « n2kdran actif » le signale.</p>
+<p>Pour arrêter réellement n2kdran (et économiser la batterie), utiliser le bouton <b>Arrêter</b> de cette
+notification. Au premier lancement, accepter l'autorisation d'afficher les notifications.</p>
+
+<h2>3. L'écran principal</h2>
+<figure><img src="img/principal-annote.png" alt="Écran principal annoté">
+<figcaption>Écran principal — repères décrits ci-dessous</figcaption></figure>
+
+<table>
+  <tr><th style="width:9mm">N°</th><th>Élément</th><th>Signification</th></tr>
+  <tr><td><span class="num">1</span></td><td>Cap</td><td>Cap en haut de la rose, qui tourne pour garder l'étrave en haut. La petite lettre dans le coin du cadre indique la référence : V (vrai), M (magnétique), C (route fond) — voir § 5.</td></tr>
+  <tr><td><span class="num">2</span></td><td>COG</td><td>Triangle fin magenta, base sur le cercle des allures et pointe vers le centre, visible en transparence sous le cadre du cap : route fond. À gauche de l'étrave, le bateau est déporté vers la gauche sur le fond.</td></tr>
+  <tr><td><span class="num">3</span></td><td>Traînée TWD</td><td>Direction du vent vrai sur les 10 dernières minutes, du bord de la carte (maintenant) vers le centre ; <span class="g">vert</span> = adonnante, <span class="r">rouge</span> = refus (§ 3.8).</td></tr>
+  <tr><td><span class="num">4</span></td><td>Cercle des allures</td><td>Anneau extérieur, fixe, lié au bateau : couleur de chaque angle de vent selon la polaire (§ 3.2).</td></tr>
+  <tr><td><span class="num">5</span></td><td>Triangle T</td><td>D'où vient le vent vrai (TWA) : il pointe vers le cercle des allures. Sa couleur dit si l'angle est bon (§ 3.2).</td></tr>
+  <tr><td><span class="num">6</span></td><td>Triangle A</td><td>D'où vient le vent apparent (AWA).</td></tr>
+  <tr><td><span class="num">7</span></td><td>Triangle jaune</td><td>Relèvement du waypoint (si qtVlm navigue vers un WP) ; il passe par-dessus les triangles T et A, qui restent visibles autour car plus grands.</td></tr>
+  <tr><td><span class="num">8</span></td><td>Layline de l'amure en cours</td><td>Trait plein : route fond à l'angle optimum sur cette amure. Secteur : variations du vent sur 10 min.</td></tr>
+  <tr><td><span class="num">9</span></td><td>Layline de l'amure opposée</td><td>Route fond après virement ou empannage, avec historique, zone floue d'incertitude et arc du même TWA sur l'autre amure (§ 3.3).</td></tr>
+  <tr><td><span class="num">10</span></td><td>Courant</td><td>Flèche bleu-vert semi-transparente : direction vers laquelle porte le courant ; force en nœuds au centre.</td></tr>
+  <tr><td><span class="num">11</span></td><td>Jauge de barre</td><td>Angle de barre ±15°, repère <span class="g">vert</span> à tribord, <span class="r">rouge</span> à bâbord ; barre verte : amplitude sur 2 min.</td></tr>
+  <tr><td><span class="num">12</span></td><td>Indicateurs</td><td>État des connexions qtVlm et N2K (§ 3.5). Un appui ouvre les réglages.</td></tr>
+  <tr><td><span class="num">13</span></td><td>Nom du WP</td><td>Nom du waypoint de destination envoyé par qtVlm.</td></tr>
+  <tr><td><span class="num">14</span></td><td>Bouton du sail chart</td><td>Affiche ou masque le sail chart au centre de la rose (§ 3.7). Anneau <span class="g">vert</span> = affiché, <span class="r">rouge</span> = masqué (comme sur cette capture).</td></tr>
+  <tr><td><span class="num">15</span></td><td>Voile</td><td>Configuration de voilure recommandée par le sail chart, dans sa couleur ; toujours affichée, même sail chart masqué. « N/A » en gris : le sail chart ne recommande aucune voile à cet angle (par exemple sous 42° de TWA pour le CM50).</td></tr>
+</table>
+
+<h3>3.1 Les cases</h3>
+<p>Dix cases, cinq de chaque côté. Chacune affiche son libellé, son unité et sa valeur en gros chiffres.
+Le contenu de chaque case se choisit (§ 4). Pour TWA et AWA, le petit point à côté du libellé donne l'amure :
+<span class="g">vert = tribord</span>, <span class="r">rouge = bâbord</span>.</p>
+<p>La colonne de droite a deux versions : <b>sans WP</b> (par défaut SOG, AWA, AWS, gîte, fond) et
+<b>avec WP actif</b> (par défaut BORDS, TTW, DTW, WPT, fond). Elle bascule seule quand qtVlm navigue vers un WP.</p>
+
+<h3>3.2 Couleurs du cercle des allures et du triangle T</h3>
+<p>Le cercle des allures est indexé sur l'angle du vent vrai : son haut correspond au vent de face, son bas au vent arrière.
+Le triangle T pointe vers lui et prend la couleur de la zone qu'il désigne.</p>
+<table>
+  <tr><th>Couleur</th><th>Signification</th></tr>
+  <tr><td><span class="g">Vert</span></td><td>Angle optimum : le VMG à cet angle atteint au moins 99 % du meilleur VMG de la polaire.</td></tr>
+  <tr><td><span class="r">Rouge</span></td><td>Trop près du vent au près (pincé), ou trop abattu au portant.</td></tr>
+  <tr><td><span class="b">Bleu</span></td><td>Trop abattu au près, ou trop lofé au portant (côté travers).</td></tr>
+</table>
+<p>Le passage du vert au rouge ou au bleu est progressif : la couleur est franche quand le VMG tombe à 90 % de l'optimum.
+Les zones changent avec la force du vent, puisque la polaire en dépend.</p>
+<p>Un <b>trait fin vert foncé</b> barre le cercle des allures à l'<b>angle optimum</b> de l'allure en cours, des deux bords :
+c'est l'angle de la case ANGLE OPT et celui qui sert aux laylines. Il est utile quand la zone verte est large
+(polaire plate) : on voit où, dans la zone, se trouve le meilleur VMG.</p>
+
+<h3>3.3 Les laylines</h3>
+<p>Les laylines sont des <b>routes fond</b> : elles tiennent compte du courant et de la dérive. Elles se comparent donc au
+triangle jaune du WP et au repère COG.</p>
+<ul>
+  <li><b>Trait plein</b> : route fond à l'angle optimum, avec le vent actuel.</li>
+  <li><b>Arc sur le bord intérieur de la carte (amure opposée)</b> : il va de la layline jusqu'à la route fond qu'on ferait
+      sur l'autre amure en gardant le TWA actuel. Il montre l'écart entre « virer au même angle » et « virer à l'angle optimum » ;
+      il disparaît quand on navigue déjà à l'angle optimum (écart inférieur à 0,5°).</li>
+  <li><b>Secteur translucide</b> : où aurait été la layline avec le vent le plus à gauche et le plus à droite des 10 dernières minutes.</li>
+  <li><b>Zone floue (amure opposée seulement)</b> : la dérive du bateau ne se mesure qu'en comparant les deux amures.
+      Tant qu'on n'a pas viré, ou si le dernier bord date de plus de 30 min, la dérive est mal connue (4° ± 4° au près par
+      défaut). La zone montre où serait la layline selon la dérive réelle : plus foncée = plus probable.
+      Elle se resserre après un virement.</li>
+</ul>
+<div class="note"><b>Lecture pour décider :</b> si le triangle jaune est dans le secteur ou la zone de la layline opposée,
+un virement maintenant permet d'atteindre le WP en un bord, quelle que soit la bascule de vent probable.
+Quand l'étrave, le repère COG et le triangle jaune sont alignés, on est sur la layline.</div>
+
+<h3>3.4 Courant</h3>
+<p>La flèche bleu-vert indique la direction vers laquelle porte le courant ; sa longueur croît avec la force jusqu'à 4 nœuds.
+Si aucun instrument ne fournit le courant, n2kdran le calcule : route fond moins route surface. Avant tout virement,
+ce courant calculé contient aussi la dérive du bateau.</p>
+
+<h3>3.5 Indicateurs de connexion</h3>
+<table>
+  <tr><th>Indicateur</th><th>État</th></tr>
+  <tr><td>N2K</td><td><span class="g">vert</span> : données reçues · « muet » : connecté mais plus de données · « coupé » (<span class="r">rouge</span>) : pas de connexion, nouvelle tentative toutes les 2 s</td></tr>
+  <tr><td>qtVlm</td><td><span class="g">vert</span> : navigation reçue · gris : rien depuis 5 s (normal si qtVlm ne navigue pas vers un WP)</td></tr>
+</table>
+
+<h3>3.6 Navigation vers le waypoint</h3>
+<table>
+  <tr><th>Case</th><th>Source</th><th>Signification</th></tr>
+  <tr><td>BORDS</td><td>calcul</td><td>Temps à passer sur chaque amure (P = bâbord, S = tribord) en tirant deux bords sur les laylines, aux vitesses cibles. 0 sur une amure = WP atteignable directement sur l'autre : le temps est alors DTW / VMC (vitesse de rapprochement réelle, comme qtVlm).</td></tr>
+  <tr><td>TTW</td><td>calcul</td><td>Temps total jusqu'au WP (somme des deux bords).</td></tr>
+  <tr><td>DTW</td><td>calcul</td><td>Distance totale à parcourir en tirant les bords.</td></tr>
+  <tr><td>DTW DIRECT</td><td>qtVlm</td><td>Distance en ligne droite.</td></tr>
+  <tr><td>WPT</td><td>qtVlm</td><td>Relèvement vrai du WP.</td></tr>
+</table>
+<p>En deux bords, ces valeurs supposent qu'on navigue aux cibles de la polaire : elles ne changent pas quand on change de cap sur la même amure.
+Quand le WP est atteignable sans virer ni empanner, elles suivent la VMC réelle (route directe, plus rapide que la layline).
+« --- » signifie que le WP n'est pas atteignable à l'allure actuelle (par exemple un WP au vent alors qu'on est au portant).</p>
+
+<h3>3.7 Sail chart au centre de la rose</h3>
+<figure><img src="img/principal.png" alt="Sail chart au centre de la rose">
+<figcaption>Sail chart affiché au centre de la rose (bouton à anneau vert)</figcaption></figure>
+<p>Le sail chart (fichiers qtVlm) est dessiné en polaire, lié au bateau comme le cercle des allures :
+l'angle depuis l'étrave est le TWA, la distance au centre la force du vent (cercles tous les 10 nœuds).
+Chaque zone a la couleur de sa configuration de voilure ; la croix blanche marque la situation actuelle (TWA, TWS).
+Le sail chart passe sous les laylines, le courant et la jauge de barre, qui restent lisibles.
+Le bouton rond en haut à gauche de la rose (14) ou les réglages (§ 5) le masquent ; le nom de la voile (15) reste affiché.</p>
+
+<h3>3.8 Traînée TWD</h3>
+<p>La traînée trace la direction du vent vrai (TWD) des 10 dernières minutes, lue sur la carte comme les laylines.
+La valeur actuelle est au bord intérieur de la carte, sous les triangles T et A ; les valeurs plus anciennes se rapprochent du centre
+(10 min = 80 % du rayon) et s'effacent progressivement. La forme de la traînée montre la rotation du vent ;
+sa couleur dit directement si c'est un refus ou une adonnante.</p>
+<table>
+  <tr><th>Couleur</th><th>Signification</th></tr>
+  <tr><td><span class="g">Vert</span></td><td>Adonnante : le vent est plus à l'arrière que la moyenne des 10 min, sur l'amure actuelle.</td></tr>
+  <tr><td><span class="r">Rouge</span></td><td>Refus : le vent est plus sur l'avant que la moyenne.</td></tr>
+  <tr><td>Blanc</td><td>Vent proche de sa moyenne.</td></tr>
+</table>
+<p>La couleur est franche à 10° d'écart. Elle se juge sur l'amure actuelle : après un virement, un refus devient une adonnante,
+et les couleurs de toute la traînée s'inversent.</p>
+
+<h3>3.9 AIS</h3>
+<p>n2kdran lit les cibles AIS du flux de la source N2K (positions des classes A et B, noms). Il ne dessine pas de carte AIS,
+qui reste le rôle de qtVlm : il surveille seulement la cible la plus menaçante et les balises de détresse.
+Une cible dont la position n'est plus reçue depuis 6 min est oubliée.</p>
+<p><b>Cible la plus menaçante (case AIS).</b> Pour chaque cible, n2kdran calcule le CPA (distance au point de rapprochement maximal)
+et le TCPA (temps jusqu'à ce point) à partir de notre position, COG et SOG et de ceux de la cible. Ne comptent que les cibles qui
+se rapprochent, à moins de la portée réglée (15 NM par défaut ; au-delà, CPA et TCPA ne sont pas calculés), avec un TCPA sous le seuil réglé et une vitesse relative d'au moins 0,5 nœud : quand nous sommes nous-mêmes au mouillage ou à quai, les bateaux
+immobiles autour de nous ne déclenchent rien, pas plus que ceux qui font la même route. En route, un bateau
+au mouillage sur notre trajectoire est en revanche une cible dangereuse, sauf si l'option « pas d'alarme pour une
+cible immobile » est cochée : une cible à moins de 0,5 nœud (ou dont la vitesse est inconnue) est alors seulement
+suivie, affichée en blanc et sans alarme. La case montre la cible retenue (nom, ou MMSI s'il est inconnu,
+en haut à droite), son CPA en milles et son TCPA en minutes.</p>
+<table>
+  <tr><th>Affichage</th><th>Signification</th></tr>
+  <tr><td>Blanc</td><td>Cible qui se rapproche, mais CPA au-dessus du seuil : la plus proche au CPA est affichée.</td></tr>
+  <tr><td><span class="r">Rouge</span></td><td>Cible dangereuse : CPA <b>et</b> TCPA sous les seuils des réglages (0,5 NM et 20 min par défaut).
+      S'il y en a plusieurs, celle qui arrive le plus tôt. La couronne blanche de la rose pulse vers le rouge et la tablette bipe toutes les 3 s
+      (volume « alarme » de l'appareil, tel qu'il est réglé), même si la case AIS n'est pas affichée.</td></tr>
+  <tr><td>« --- »</td><td>Aucune cible ne se rapproche, ou position du bateau absente.</td></tr>
+</table>
+<figure><img src="img/ais-danger.png" alt="Cible AIS dangereuse">
+<figcaption>Cible dangereuse : couronne rouge (elle pulse), point rouge sur le cercle des allures dans sa direction,
+case AIS en rouge (en bas à droite)</figcaption></figure>
+<p><b>Point rouge.</b> Chaque alerte (cible dangereuse, balise de détresse) est marquée d'un point rouge sur le cercle des allures,
+dans la direction de la cible. Il pulse tant que l'alerte n'est pas acquittée. Les distances sont données en mètres sous 1 000 m,
+en milles au-delà.</p>
+<table>
+  <tr><th>Appui sur le point rouge</th><th>Effet</th></tr>
+  <tr><td>1<sup>er</sup> appui</td><td>Acquitte l'alerte : le bip ou l'alarme se tait, la couronne et le point cessent de pulser,
+      le bandeau d'une balise disparaît (sauf homme à la mer, voir plus bas). Le point reste affiché.</td></tr>
+  <tr><td>2<sup>e</sup> appui</td><td>Passe à la cible suivante : la cible acquittée est écartée et la suivante (cible dangereuse ou balise)
+      est signalée à son tour, avec son bip.</td></tr>
+</table>
+<p class="small">Quand plus aucune alerte n'est en cours, les acquittements sont oubliés : une cible qui redevient dangereuse est de nouveau signalée.</p>
+<p><b>Balise de détresse.</b> Une balise AIS-SART (MMSI 970…), un MOB AIS (972…) ou une EPIRB AIS (974…) active fait apparaître
+un bandeau rouge clignotant au centre de la rose : type de balise, nom ou MMSI, distance et relèvement. La tablette sonne
+une alarme continue, avec le volume « alarme » monté au maximum le temps de l'alerte puis remis à sa valeur. S'il y a plusieurs balises,
+la plus proche est signalée. Une balise qui n'émet plus est oubliée au bout de 6 min.</p>
+<p>Les balises en mode test sont ignorées : statut de navigation « test » (15), ou message de sécurité AIS (PGN 129802) contenant
+« TEST » (« SART TEST », « MOB TEST », « EPIRB TEST ») ; la balise est alors ignorée 10 min, sauf si elle annonce « ACTIVE ».</p>
+<p>Une balise juste déclenchée émet avant d'avoir son point GNSS : l'alerte part tout de suite. Une SART ou une EPIRB sans position
+affiche « position inconnue », sans distance ni point rouge ; un appui sur le bandeau l'acquitte. Dès que la balise envoie sa position,
+distance et relèvement s'affichent ; sa dernière position connue est gardée si elle cesse ensuite d'en envoyer.</p>
+<figure><img src="img/ais-mob.png" alt="Alerte MOB AIS">
+<figcaption>Alerte de détresse : bandeau clignotant, point rouge dans la direction de la balise (ici un MOB AIS, derrière nous)</figcaption></figure>
+<p><b>Homme à la mer.</b> Un MOB AIS (972…, par exemple une balise personnelle Ocean Signal MOB2) ou une alerte homme à la mer du bus N2K
+(PGN 127233 : émetteur MOB ou bouton MOB d'un appareil du bord) passe avant tout le reste :</p>
+<ul>
+  <li>les autres alertes AIS sont coupées (ni couronne, ni bip, ni point rouge des autres cibles ; la case AIS reste affichée) ;</li>
+  <li>l'alerte est <b>mémorisée jusqu'à l'arrêt de n2kdran</b>, même si la balise cesse d'émettre ou s'annonce ensuite inactive ou en test ;</li>
+  <li>l'appui sur le point rouge (ou sur le bandeau) coupe seulement l'alarme : le bandeau reste affiché, en rouge fixe ;
+      il n'y a pas de passage à la cible suivante. S'il y a plusieurs MOB, chacun a son point rouge ;</li>
+  <li>sans position (MOB2 avant son point GNSS, 127233 sans position), l'homme à la mer est placé à la position du bateau au moment
+      où l'alerte est reçue : le bandeau affiche « position inconnue ≈ » suivi de la distance et du relèvement de ce point estimé.
+      Le point rouge apparaît dès qu'on s'en est écarté de 20 m. La vraie position remplace l'estimation dès qu'elle arrive.</li>
+</ul>
+<div class="duo">
+<figure><img src="img/ais-mob-inconnue.png" alt="MOB AIS sans position">
+<figcaption>MOB AIS sans point GNSS : position estimée au point de réception de l'alerte</figcaption></figure>
+<figure><img src="img/ais-mob-n2k.png" alt="Homme à la mer du bus N2K">
+<figcaption>Homme à la mer signalé sur le bus N2K (PGN 127233)</figcaption></figure>
+</div>
+<div class="note">Pour terminer une alerte homme à la mer, arrêter n2kdran avec le bouton <b>Arrêter</b> de sa notification (§ 2.5) :
+passer à une autre application ne suffit pas. Si la balise émet encore au redémarrage, l'alerte revient.</div>
+<div class="note">Le bip et l'alarme sont joués même écran éteint ou qtVlm au premier plan. Si le mode « Ne pas déranger » d'Android
+coupe les alarmes, ils peuvent rester muets.</div>
+
+<h2 class="pb">4. Gestes</h2>
+<table>
+  <tr><th>Geste</th><th>Action</th></tr>
+  <tr><td>1 appui sur « qtVlm » ou « N2K »</td><td>Ouvre les réglages</td></tr>
+  <tr><td>1 appui sur le bouton rond (haut gauche de la rose)</td><td>Affiche ou masque le sail chart au centre de la rose (anneau vert = affiché, rouge = masqué) ; le nom de la voile reste affiché</td></tr>
+  <tr><td>3 appuis rapides sur une case</td><td>Choix de la donnée affichée dans cette case</td></tr>
+  <tr><td>2 appuis rapides n'importe où</td><td>Écran de mise au point (toutes les données en texte) ; 2 appuis pour revenir</td></tr>
+  <tr><td>1 appui sur un point rouge AIS</td><td>Acquitte l'alerte ; 2<sup>e</sup> appui : cible suivante (homme à la mer : coupe seulement l'alarme) (§ 3.9)</td></tr>
+  <tr><td>Appui long</td><td>Mode nuit (luminosité minimale + voile sombre) ; appui long pour revenir</td></tr>
+</table>
+<p class="small">Les appuis multiples doivent être rapprochés (moins de 0,35 s) et au même endroit. Un appui simple sur une case ne fait rien.</p>
+
+<figure><img src="img/choix-case.png" alt="Choix d'une case">
+<figcaption>Choix de la donnée d'une case (triple appui)</figcaption></figure>
+
+<h3>4.1 Mode nuit</h3>
+<figure><img src="img/nuit.png" alt="Mode nuit">
+<figcaption>Mode nuit : luminosité de l'écran au minimum et voile sombre (réglable)</figcaption></figure>
+<p>Les couleurs restent celles du jour. L'intensité du voile se règle dans les réglages (« Atténuation de nuit »).
+Le mode nuit ne survit pas à un redémarrage de l'application.</p>
+
+<h2>5. Réglages</h2>
+<figure><img src="img/reglages.png" alt="Réglages, haut"></figure>
+<figure><img src="img/reglages2.png" alt="Réglages, milieu"></figure>
+<figure><img src="img/reglages3.png" alt="Réglages, bas"><figcaption>Écran des réglages (il défile au doigt)</figcaption></figure>
+<table>
+  <tr><th>Réglage</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td>Source N2K — adresse</td><td>10.3.0.2</td><td>Adresse de la source N2K sur le réseau du bord (10.3.0.2 = o3nav)</td></tr>
+  <tr><td>Source N2K — port du flux YDRAW</td><td>2700</td><td>Port TCP du flux YDRAW</td></tr>
+  <tr><td>Dernières connexions</td><td>—</td><td>Les 3 dernières sources N2K auxquelles la connexion a réussi (la plus récente à gauche). Un appui remplit l'adresse et le port ; enregistrer pour l'appliquer. Une adresse qui n'a jamais répondu n'y figure pas</td></tr>
+  <tr><td>Navigation qtVlm</td><td>2800</td><td>Port UDP sur lequel n2kdran reçoit la navigation envoyée par qtVlm</td></tr>
+  <tr><td>Relais vers qtVlm sur cet appareil</td><td>vide</td><td>Port UDP local (par exemple 2801) vers lequel n2kdran renvoie chaque paquet de navigation reçu, pour qtVlm installé sur la même tablette (§ 2.3). Vide = pas de relais</td></tr>
+  <tr><td>Cap affiché</td><td>Vrai</td><td>Vrai (V), magnétique (M : cap vrai corrigé de la variation) ou COG (C : route fond en haut de la rose, le bateau pivote de l'écart entre cap et route). Les cases restent en vrai.</td></tr>
+  <tr><td>Polaire</td><td>CM50</td><td>Fichier polaire qtVlm (.pol / .csv). Il est vérifié avant d'être retenu ; « CM50 par défaut » revient à la polaire intégrée</td></tr>
+  <tr><td>Sail chart</td><td>CM50</td><td>Fichiers qtVlm .saildef et .sailselect, à choisir ensemble ; vérifiés avant d'être retenus</td></tr>
+  <tr><td>Sail chart au centre de la rose</td><td>Oui</td><td>Sail chart en polaire au centre de la rose (angle depuis l'étrave = TWA, distance au centre = TWS, cercles tous les 10 kn, croix = situation actuelle). Le nom de la voile retenue s'affiche toujours en haut à droite de la rose</td></tr>
+  <tr><td>Délai de péremption</td><td>3 s</td><td>Au-delà, une donnée non reçue s'affiche « --- »</td></tr>
+  <tr><td>Immersion du transducteur</td><td>0 m</td><td>Profondeur du transducteur sous la flottaison, ajoutée à la profondeur mesurée pour la case FOND quand le sondeur n'envoie pas lui-même de décalage vers la surface (décalage absent, nul ou négatif)</td></tr>
+  <tr><td>AIS — CPA</td><td>0,5 NM</td><td>Cible dangereuse si son CPA est sous ce seuil (0,05 à 5 NM)…</td></tr>
+  <tr><td>AIS — TCPA</td><td>20 min</td><td>… et son TCPA sous ce seuil (1 à 120 min). Au-delà, la cible n'est pas surveillée (§ 3.9)</td></tr>
+  <tr><td>AIS — portée</td><td>15 NM</td><td>Cibles plus éloignées ignorées : ni CPA ni TCPA calculés (0,5 à 50 NM)</td></tr>
+  <tr><td>AIS — cible immobile</td><td>décochée</td><td>Cochée : une cible à moins de 0,5 nœud (mouillage, quai…) ne déclenche jamais d'alarme ; elle reste affichée en blanc (§ 3.9)</td></tr>
+  <tr><td>Atténuation de nuit</td><td>60 %</td><td>Opacité du voile sombre en mode nuit (0 à 90 %)</td></tr>
+</table>
+
+<h2>6. Données disponibles pour les cases</h2>
+<table>
+  <tr><th>Libellé</th><th>Unité</th><th>Donnée</th></tr>
+  <tr><td>BSP</td><td>kn</td><td>Vitesse surface</td></tr>
+  <tr><td>CIBLE</td><td>kn</td><td>Vitesse cible à l'angle optimum (polaire)</td></tr>
+  <tr><td>SOG</td><td>kn</td><td>Vitesse fond</td></tr>
+  <tr><td>VMG</td><td>kn</td><td>Vitesse utile face ou dos au vent</td></tr>
+  <tr><td>VMG</td><td>%</td><td>VMG en % du VMG cible</td></tr>
+  <tr><td>POLAIRE</td><td>%</td><td>BSP en % de la vitesse polaire à l'angle et au vent actuels</td></tr>
+  <tr><td>TWA / AWA</td><td>°</td><td>Angle du vent vrai / apparent (point = amure)</td></tr>
+  <tr><td>TWS / AWS</td><td>kn</td><td>Force du vent vrai / apparent</td></tr>
+  <tr><td>TWD</td><td>°</td><td>Direction du vent vrai</td></tr>
+  <tr><td>TWS 10' / TWD 10'</td><td>kn / °</td><td>Moyennes sur 10 minutes</td></tr>
+  <tr><td>ANGLE OPT</td><td>°</td><td>Angle de vent optimum (polaire), stabilisé pour ne pas sauter entre deux optimums voisins</td></tr>
+  <tr><td>CAP / COG</td><td>°</td><td>Cap vrai / route fond</td></tr>
+  <tr><td>GÎTE / TANGAGE / BARRE</td><td>°</td><td>Angles signés</td></tr>
+  <tr><td>FOND</td><td>m</td><td>Profondeur sous la surface : profondeur sous le transducteur + décalage du sondeur s'il est positif, sinon + immersion du transducteur (§ 5)</td></tr>
+  <tr><td>LOCH / JOURNALIER</td><td>NM</td><td>Distances totale et journalière</td></tr>
+  <tr><td>COURANT / DIR. COURANT</td><td>kn / °</td><td>Force et direction du courant</td></tr>
+  <tr><td>DÉRIVE</td><td>°</td><td>Dérive du bateau mesurée (après un virement)</td></tr>
+  <tr><td>T° EAU / T° AIR / PRESSION</td><td>°C / hPa</td><td>Environnement</td></tr>
+  <tr><td>BORDS / TTW / DTW / DTW DIRECT / WPT</td><td></td><td>Navigation vers le WP (§ 3.6)</td></tr>
+  <tr><td>VMC / XTE</td><td>kn / m ou NM</td><td>Vitesse de rapprochement du WP / écart de route (en mètres sous 0,1 NM, en milles au-delà ; pastille <span class="g">verte</span> = à droite de la route, <span class="r">rouge</span> = à gauche ; nécessite la case XTE dans qtVlm)</td></tr>
+  <tr><td>SATELLITES / HDOP</td><td></td><td>Qualité de la position GNSS</td></tr>
+  <tr><td>VOILE</td><td></td><td>Configuration de voilure recommandée par le sail chart (fichiers qtVlm), sur sa couleur qtVlm ; elle ne change qu'après 3 s de stabilité. « N/A » : aucune voile recommandée à cet angle</td></tr>
+  <tr><td>AIS</td><td>NM / min</td><td>Cible AIS la plus menaçante : nom ou MMSI, CPA et TCPA, en <span class="r">rouge</span> si dangereuse (§ 3.9)</td></tr>
+  <tr><td>SAIL</td><td></td><td>Mini sail chart : TWA (40–180°) en abscisse, TWS en ordonnée, zones lissées colorées par configuration, croix à la position actuelle</td></tr>
+</table>
+
+<h2>7. Écran de mise au point</h2>
+<figure><img src="img/mise-au-point.png" alt="Mise au point"></figure>
+<p>Double appui : toutes les données reçues et calculées s'affichent en texte, avec l'état de la connexion,
+le nombre de lignes reçues et rejetées, et la polaire utilisée. L'écran défile au doigt.
+Les noms sont ceux du cœur de calcul ; par exemple, DTW y est la distance directe et DTW_SAIL la distance en tirant les bords.</p>
+
+<h2>8. Points à vérifier à bord</h2>
+<ul>
+  <li><b>Profondeur (DST810)</b> : lire <code>DEPTH_OFFSET</code> dans l'écran de mise au point. Positif, la case FOND est déjà sous la surface ;
+      négatif ou nul, saisir l'immersion du transducteur dans les réglages.</li>
+  <li><b>Signe de la gîte et de la barre</b> : n2kdran suppose qu'une valeur positive correspond à tribord.
+      À confirmer avec les instruments réels.</li>
+  <li><b>Dérive et laylines</b> : à observer sur un vrai virement (la zone floue doit se resserrer).</li>
+  <li><b>AIS</b> : vérifier le volume « alarme » de la tablette et le réglage « Ne pas déranger » ; la case AIS doit suivre
+      le CPA et le TCPA affichés par qtVlm pour la même cible.</li>
+  <li><b>Courant calculé</b> : sa qualité dépend directement de l'étalonnage du loch.</li>
+  <li><b>Polaire</b> : les cibles, les couleurs et les laylines n'ont de sens que si la polaire correspond au bateau et à sa configuration.</li>
+</ul>
+
+<h2 class="pb">9. Version web (ordinateur)</h2>
+<p>Le même écran s'affiche dans un navigateur, sur un ordinateur du bord (o3nav, portable…). Les calculs sont ceux de la
+tablette : le même cœur de calcul tourne dans la page. Un navigateur ne sait pas se connecter seul au flux N2K
+(ni TCP ni UDP) : un petit programme, le <b>relais</b> (<code>web/relay.py</code>, Python 3 seul, rien à installer),
+lit le flux de la source N2K et la navigation de qtVlm, et les transmet à la page.</p>
+<table>
+  <tr><th>Flux</th><th>Chemin</th></tr>
+  <tr><td>Instruments, AIS</td><td>source N2K (TCP 2700, lecture seule) → relais → page</td></tr>
+  <tr><td>Navigation qtVlm</td><td>qtVlm (UDP 2800, vers l'adresse de l'ordinateur) → relais → page</td></tr>
+</table>
+
+<h3>9.1 Mise en route</h3>
+<p>Le relais s'installe en service utilisateur (sans droits d'administrateur) et démarre avec la session.
+Depuis le dossier <code>n2kdran</code> :</p>
+<ol>
+  <li><code>mkdir -p ~/.config/systemd/user ~/.config/n2kdran-web</code></li>
+  <li><code>cp web/n2kdran-web.service ~/.config/systemd/user/</code></li>
+  <li>Indiquer la source N2K dans <code>~/.config/n2kdran-web/env</code>, une ligne <code>SOURCE=…</code> :
+    <ul>
+      <li>sur o3nav : <code>SOURCE=127.0.0.1:2700</code> ;</li>
+      <li>sur un autre ordinateur à bord : <code>SOURCE=10.3.0.2:2700</code> ;</li>
+      <li>sur une machine reliée elle-même au bus NMEA 2000 (HALPI, adaptateur CAN…) : <code>SOURCE=can:can0</code>
+          (lecture seule, rien n'est émis sur le bus) ;</li>
+      <li>plusieurs sources possibles, séparées par des virgules : elles sont essayées dans l'ordre (3 s chacune),
+          la première qui répond est gardée ; si elle tombe, la liste est reprise du début.</li>
+    </ul></li>
+  <li><code>systemctl --user daemon-reload &amp;&amp; systemctl --user enable --now n2kdran-web</code></li>
+</ol>
+<p>Ouvrir ensuite <b>http://localhost:8090/</b>. Pour démarrer le relais sans session ouverte :
+<code>loginctl enable-linger $USER</code>. Après une mise à jour de n2kdran : <code>systemctl --user restart n2kdran-web</code>,
+puis recharger la page. Le port 8090 se change par une ligne <code>HTTP=…</code> dans le même fichier
+(8080 est celui de l'interface web de n2k-mux).</p>
+
+<h3>9.2 Fenêtre sans barre de navigateur</h3>
+<p>Dans Brave ou Chrome, la page s'installe comme une application : menu ⋮ → <i>Enregistrer et partager →
+Installer la page en tant qu'application</i>. Elle s'ouvre alors dans sa propre fenêtre, redimensionnable, sans onglets
+ni barre d'adresse, et figure dans le menu des applications. Sans installation :
+<code>brave-browser --app=http://localhost:8090/</code>. Touche <b>F</b> ou <b>F11</b> : plein écran.</p>
+<p>Le dessin garde la proportion 1280 × 800 et se centre dans la fenêtre : une fenêtre d'une autre forme laisse des bandes noires.</p>
+
+<div style="page-break-inside:avoid">
+<h3>9.3 Gestes et touches</h3>
+<p>Les gestes sont ceux de la tablette (§ 4), à la souris ou au doigt : un clic vaut un appui.</p>
+<table>
+  <tr><th>Touche</th><th>Action</th></tr>
+  <tr><td>F ou F11</td><td>Plein écran (aussi par le bouton des réglages)</td></tr>
+  <tr><td>N</td><td>Mode nuit</td></tr>
+  <tr><td>D</td><td>Écran de mise au point (double clic dessus pour revenir)</td></tr>
+</table>
+</div>
+
+<h3>9.4 Réglages</h3>
+<figure><img src="img/web-reglages.png" alt="Réglages de la version web" style="width:72%;display:block;margin:0 auto">
+<figcaption>Réglages de la version web (clic sur « qtVlm » ou « N2K »)</figcaption></figure>
+<p>Les réglages sont ceux de la tablette (§ 5), sauf la source N2K : elle est fixée par le relais (§ 9.1) et seulement
+rappelée en haut. Ils sont gardés par le navigateur, pour cette page : un autre navigateur ou un autre ordinateur
+a ses propres réglages. « Cases par défaut » rétablit le contenu d'origine des cases.</p>
+
+<h3>9.5 Différences avec la tablette</h3>
+<ul>
+  <li><b>Calculs liés à la page</b> : ils ne tournent que tant que la page est ouverte. La fermer efface les moyennes de 10 minutes,
+      l'historique des laylines, la dérive mesurée et l'historique de barre. Un navigateur ralentit aussi une page
+      qui n'est pas affichée (onglet en arrière-plan, fenêtre réduite).</li>
+  <li><b>Son</b> : le navigateur ne joue aucun son tant qu'on n'a pas cliqué une fois dans la page (alarme de détresse et bip de
+      cible dangereuse). L'écran de mise au point indique « son : running » quand il est actif.
+      Les sons sont ceux de l'ordinateur, à son volume : il n'est pas forcé au maximum.</li>
+  <li><b>Mode nuit</b> : seul le voile sombre s'applique ; la page ne peut pas baisser la luminosité de l'écran.</li>
+  <li><b>Veille de l'écran</b> : la page demande à garder l'écran allumé quand elle est ouverte en <code>localhost</code>.</li>
+  <li><b>Homme à la mer</b> : l'alerte reste affichée jusqu'au rechargement de la page (pas de notification « Arrêter »).</li>
+  <li><b>Navigation qtVlm</b> : qtVlm doit envoyer sa sortie UDP 2800 à l'adresse de l'ordinateur (§ 2.3). Sur o3nav, une sortie UDP de qtVlm vers 127.0.0.1:2800 suffit
+      au relais (qtVlm propose deux sorties UDP).</li>
+</ul>
+
+</body>
+</html>

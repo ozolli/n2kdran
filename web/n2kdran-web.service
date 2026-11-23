@@ -1,0 +1,29 @@
+# Service UTILISATEUR systemd (pas besoin de root), comme nmea2aap :
+#   mkdir -p ~/.config/systemd/user ~/.config/n2kdran-web
+#   cp n2kdran-web.service ~/.config/systemd/user/
+#   Dans ~/.config/n2kdran-web/env, la source N2K (une ligne SOURCE=…) :
+#     SOURCE=127.0.0.1:2700                  o3nav (n2k-mux local)
+#     SOURCE=10.3.0.2:2700                   autre machine, source N2K en réseau
+#     SOURCE=can:can0                        bus CAN de la machine (HALPI…)
+#     SOURCE=a:2700,b:2700                   liste essayée dans l'ordre
+#   et, si le dossier n'est pas ~/Programmation/n2kdran/web, son chemin :
+#     DIR=/home/<utilisateur>/n2kdran-web
+#   systemctl --user daemon-reload && systemctl --user enable --now n2kdran-web
+#   loginctl enable-linger $USER    # facultatif : démarre sans session ouverte
+# Page : http://localhost:8090/
+[Unit]
+Description=n2kdran web : page et relais WebSocket du flux N2K
+After=network-online.target
+
+[Service]
+Environment=SOURCE=127.0.0.1:2700
+Environment=HTTP=8090
+Environment=NAV=2800
+Environment=DIR=%h/Programmation/n2kdran/web
+EnvironmentFile=-%h/.config/n2kdran-web/env
+ExecStart=/usr/bin/python3 -I ${DIR}/relay.py --n2k ${SOURCE} --http ${HTTP} --nav ${NAV}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
