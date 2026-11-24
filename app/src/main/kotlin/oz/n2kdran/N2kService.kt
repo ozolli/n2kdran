@@ -24,11 +24,14 @@ class N2kService : Service() {
             NotificationChannel(CHANNEL, "n2kdran actif", NotificationManager.IMPORTANCE_LOW).apply {
                 description = "Réception des instruments en arrière-plan"
             })
-        startForeground(NOTIF_ID, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         Engine.start(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // À CHAQUE démarrage, pas seulement dans onCreate : chaque startForegroundService()
+        // (écran principal recréé, service déjà actif) attend un startForeground(), sinon
+        // Android fait planter l'appli quand le service s'arrête (« Arrêter »).
+        startForeground(NOTIF_ID, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         if (intent?.action == ACTION_STOP) {
             Engine.stop()
             stopForeground(STOP_FOREGROUND_REMOVE)
